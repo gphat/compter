@@ -40,9 +40,10 @@ Lists all debts.
 
 * Metrics emission: If Compter periodically emits metrics you can alert on "has this happened?". Also, if emitted as a monotonic counter a rate could be used, as the rate of payment should equal the expected period e.g. once per hour, etc.
 * Event emission: Some systems may prefer an analytics approach, emitting an event with all the attributes.
-* Schedules: How often should a "payment" occur?
-* Persistence: since this is only in memory. Using a backend like Pg or Redis would allow persistent and more scaling.
-* Multi-stage payments with timeout: A debt may require multiple payments, imagine an event like a deploy that starts then moves through a series of steps. Each "payment" would have a name (i.e. `fetched_info`, `copied_artifact`, `restarted_service`) and a final payoff. If the timeout is reached and no payoff has occurred, such information is emitted and the debt cleared.
+* Schedules/Interval: How often should a "payment" occur? (Could simplify to a deadline timestamp)
+* Persistence: since this PoC is only in memory. Using a backend like Pg or Redis would allow persistent and more scaling.
+* Multi-stage payments with timeout: A debt may require multiple payments, imagine an event like a deploy that starts then moves through a series of steps. Each "payment" would have a name (i.e. `fetched_info`, `copied_artifact`, `restarted_service`) and a final payoff. If the timeout is reached and no payoff has occurred, such information is emitted and the debt cleared. All payments are made via a `POST` with the debt's ID
+* Vivifying debts: If a POST is made to a non-existent debt, create one and differentiate from an update via status code. This allows recovery from lost debts, as it is assumed that the system normally is working well. (e.g a storage failure loses some/all debts, but cron *normally* works so they get reentered). This would require that POSTs include all data needed to recreate the debt, mainly the interval.
 
 # Name
 
